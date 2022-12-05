@@ -4,7 +4,6 @@ const Sequelize = require('sequelize')
 const sequelize = require('../connection/postgresql')
 const db = {}
 
-// add all models in the directory to the db object
 fs.readdirSync(__dirname)
   .filter((file) => {
     return (file.indexOf('.') !== 0 && file !== path.basename(__filename) && file.slice(-3) === '.js')
@@ -14,7 +13,6 @@ fs.readdirSync(__dirname)
     db[model.name] = model
   })
 
-// add all model associations
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db)
