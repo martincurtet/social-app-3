@@ -12,5 +12,8 @@ module.exports = (sequelize, DataType) => {
       updatedAt: 'modified'
     }
   )
+  Post.associate = (models) => {
+    Post.hasMany(models.like, { foreignKey: 'post_id' })
+  }
   return Post
 }
