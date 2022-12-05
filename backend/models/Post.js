@@ -14,6 +14,7 @@ module.exports = (sequelize, DataType) => {
   )
   Post.associate = (models) => {
     Post.hasMany(models.like, { foreignKey: 'post_id' })
+    Post.hasMany(models.comment, { foreignKey: 'post_id' })
   }
   return Post
 }
