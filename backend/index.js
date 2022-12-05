@@ -1,4 +1,5 @@
 const express = require('express')
+const sequelize = require('./connection/postgresql')
 require('dotenv').config()
 
 const PORT = process.env.PORT
