@@ -20,5 +20,8 @@ module.exports = (sequelize, DataType) => {
       updatedAt: 'modified'
     }
   )
+  User.associate = (models) => {
+    User.hasMany(models.post, { foreignKey: 'user_id' })
+  }
   return User
 }
