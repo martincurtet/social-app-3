@@ -1,8 +1,9 @@
 const router = require('express').Router()
 const bcrypt = require('bcrypt')
 const db = require('../models')
+const credentialsValidation = require('../middleware/credentialsValidation')
 
-router.post('/register', async (req, res) => {
+router.post('/register', credentialsValidation, async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body
     console.log(`# Registering user '${email}'...`)
@@ -24,6 +25,7 @@ router.post('/register', async (req, res) => {
         user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email }
       })
     } else {
+      console.log(`# User already exists`)
       return res.json({
         status: 401,
         message: `User already exists`

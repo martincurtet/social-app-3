@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cors())
 
 try {
-  db.sequelize.sync({ force: true })
+  db.sequelize.sync({ alter: true })
   console.log(`# Database synchronization successful`)
 } catch(err) {
   console.log(`# Database cannot synchronize`)
