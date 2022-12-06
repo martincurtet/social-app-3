@@ -113,6 +113,27 @@ router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
   }
 })
 
+router.get('/logout', tokenAuthorization, (req, res) => {
+  try {
+    // deactivate all previous refresh tokens from user
+    const oldTokens = db.token.update(
+      { active: false },
+      { where: { user_id: req.user_id }}
+    )
+    return res.json({
+      status: 200,
+      message: `Logout Successful`
+    })
+  } catch(err) {
+    console.log(`# Error on /auth/logout route`)
+    console.error(err.message)
+    return res.json({
+      status: 500,
+      message: `Server Error`
+    })
+  }
+})
+
 router.get('/verify', tokenAuthorization, (req, res) => {
   try {
     return res.json({
