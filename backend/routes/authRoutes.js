@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const db = require('../models')
 const credentialsValidation = require('../middleware/credentialsValidation')
+const loginLimiter = require('../middleware/loginLimiter')
 require('dotenv').config()
 
 router.post('/register', credentialsValidation, async (req, res) => {
@@ -43,7 +44,7 @@ router.post('/register', credentialsValidation, async (req, res) => {
   }
 })
 
-router.post('/login', credentialsValidation, async (req, res) => {
+router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
   try {
     const { email, password } = req.body
     console.log(`# Logging in user '${email}'...`)
