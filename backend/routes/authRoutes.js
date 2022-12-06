@@ -2,6 +2,7 @@ const router = require('express').Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const db = require('../models')
+const tokenAuthorization = require('../middleware/tokenAuthorization')
 const credentialsValidation = require('../middleware/credentialsValidation')
 const loginLimiter = require('../middleware/loginLimiter')
 require('dotenv').config()
@@ -104,6 +105,22 @@ router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
     })
   } catch(err) {
     console.log(`# Error on /auth/login route`)
+    console.error(err.message)
+    return res.json({
+      status: 500,
+      message: `Server Error`
+    })
+  }
+})
+
+router.get('/verify', tokenAuthorization, (req, res) => {
+  try {
+    return res.json({
+      status: 200,
+      message: `Valid Token`
+    })
+  } catch(err) {
+    console.log(`# Error on /auth/refresh route`)
     console.error(err.message)
     return res.json({
       status: 500,
