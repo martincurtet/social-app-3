@@ -32,7 +32,7 @@ module.exports = (req, res, next) => {
     }
 
     // password requirements
-    if (!/^(?!.*\s)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_]).{8,}$/.test(password)) {
+    if (req.path == '/register' && !/^(?!.*\s)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_]).{8,}$/.test(password)) {
       console.log(`# Password not strong enough`)
       return res.json({
         status: 400,

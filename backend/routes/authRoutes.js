@@ -68,7 +68,7 @@ router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
     }
     const accessToken = jwt.sign(
       { user_id: user.dataValues.id },
-      process.env.JWT_SECRET,
+      process.env.JWT_ACCESS,
       { expiresIn: process.env.JWT_EXPIRE }
     )
     console.log(`# Login successful`)
