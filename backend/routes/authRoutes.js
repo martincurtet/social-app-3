@@ -1,7 +1,9 @@
 const router = require('express').Router()
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const db = require('../models')
 const credentialsValidation = require('../middleware/credentialsValidation')
+require('dotenv').config()
 
 router.post('/register', credentialsValidation, async (req, res) => {
   try {
@@ -33,6 +35,49 @@ router.post('/register', credentialsValidation, async (req, res) => {
     }
   } catch(err) {
     console.log(`# Error on /auth/register route`)
+    console.error(err.message)
+    return res.json({
+      status: 500,
+      message: `Server Error`
+    })
+  }
+})
+
+router.post('/login', credentialsValidation, async (req, res) => {
+  try {
+    const { email, password } = req.body
+    console.log(`# Logging in user '${email}'...`)
+    const user = await db.user.findOne({
+      where: { email: email }
+    })
+    if (user === null) {
+      console.log(`# User doesn't exist`)
+      return res.json({
+        status: 401,
+        message: `Invalid credentials`
+      })
+    }
+    const validPassword = await bcrypt.compare(password, user.dataValues.password)
+    if (!validPassword) {
+      console.log(`# Invalid credentials`)
+      return res.json({
+        status: 401,
+        message: `Invalid credentials`
+      })
+    }
+    const accessToken = jwt.sign(
+      { user_id: user.dataValues.id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRE }
+    )
+    console.log(`# Login successful`)
+    return res.json({
+      status: 200,
+      message: `Login successful`,
+      accessToken: accessToken
+    })
+  } catch(err) {
+    console.log(`# Error on /auth/login route`)
     console.error(err.message)
     return res.json({
       status: 500,
