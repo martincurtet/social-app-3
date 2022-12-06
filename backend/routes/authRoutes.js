@@ -48,6 +48,7 @@ router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
   try {
     const { email, password } = req.body
     console.log(`# Logging in user '${email}'...`)
+
     const user = await db.user.findOne({
       where: { email: email }
     })
@@ -58,6 +59,7 @@ router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
         message: `Invalid credentials`
       })
     }
+
     const validPassword = await bcrypt.compare(password, user.dataValues.password)
     if (!validPassword) {
       console.log(`# Invalid credentials`)
@@ -66,16 +68,39 @@ router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
         message: `Invalid credentials`
       })
     }
+
     const accessToken = jwt.sign(
       { user_id: user.dataValues.id },
       process.env.JWT_ACCESS,
-      { expiresIn: process.env.JWT_EXPIRE }
+      { expiresIn: process.env.JWT_ACCESS_EXPIRE }
     )
+    const refreshToken = jwt.sign(
+      { user_id: user.dataValues.id },
+      process.env.JWT_REFRESH,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRE }
+    )
+
+    // deactivate all previous refresh tokens from user
+    const oldTokens = db.token.update(
+      { active: false },
+      { where: { user_id: user.dataValues.id }}
+    )
+
+    // creating and save new refresh token
+    const dbToken = await db.token.build({
+      token: refreshToken,
+      active: true,
+      user_id: user.dataValues.id
+    })
+    await dbToken.save()
+    console.log(`# Refresh token saved in database`)
+
     console.log(`# Login successful`)
     return res.json({
       status: 200,
       message: `Login successful`,
-      accessToken: accessToken
+      accessToken: accessToken,
+      refreshToken: refreshToken
     })
   } catch(err) {
     console.log(`# Error on /auth/login route`)

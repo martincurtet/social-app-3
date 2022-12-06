@@ -26,6 +26,7 @@ module.exports = (sequelize, DataType) => {
     User.hasMany(models.post, { foreignKey: 'user_id' })
     User.hasMany(models.like, { foreignKey: 'user_id' })
     User.hasMany(models.comment, { foreignKey: 'user_id' })
+    User.hasMany(models.token, { foreignKey: 'user_id' })
   }
   return User
 }
