@@ -2,7 +2,6 @@
 const express = require('express')
 const cors = require('cors')
 const db = require('./models')
-const config = require('./config/config.json').dev
 require('dotenv').config()
 
 const PORT = process.env.PORT
@@ -19,6 +18,8 @@ try {
   console.log(`# Database cannot synchronize`)
   console.error(err.message)
 }
+
+app.use('/auth', require('./routes/authRoutes'))
 
 app.listen(PORT, () => {
   console.log(`# Server running on port ${PORT}`)
