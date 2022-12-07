@@ -1,10 +1,10 @@
 const router = require('express').Router()
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
 const db = require('../models')
-const tokenAuthorization = require('../middleware/tokenAuthorization')
+const tokenVerification = require('../middleware/tokenVerification')
 const credentialsValidation = require('../middleware/credentialsValidation')
 const loginLimiter = require('../middleware/loginLimiter')
+const { jwtAccessGenerator, jwtRefreshGenerator } = require('../utils/jwtGenerator')
 require('dotenv').config()
 
 router.post('/register', credentialsValidation, async (req, res) => {
@@ -70,16 +70,8 @@ router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
       })
     }
 
-    const accessToken = jwt.sign(
-      { user_id: user.dataValues.id },
-      process.env.JWT_ACCESS,
-      { expiresIn: process.env.JWT_ACCESS_EXPIRE }
-    )
-    const refreshToken = jwt.sign(
-      { user_id: user.dataValues.id },
-      process.env.JWT_REFRESH,
-      { expiresIn: process.env.JWT_REFRESH_EXPIRE }
-    )
+    const accessToken = jwtAccessGenerator(user.dataValues.id)
+    const refreshToken = jwtRefreshGenerator(user.dataValues.id)
 
     // deactivate all previous refresh tokens from user
     const oldTokens = db.token.update(
@@ -113,7 +105,7 @@ router.post('/login', loginLimiter, credentialsValidation, async (req, res) => {
   }
 })
 
-router.get('/logout', tokenAuthorization, (req, res) => {
+router.get('/logout', tokenVerification, (req, res) => {
   try {
     // deactivate all previous refresh tokens from user
     const oldTokens = db.token.update(
@@ -134,14 +126,14 @@ router.get('/logout', tokenAuthorization, (req, res) => {
   }
 })
 
-router.get('/verify', tokenAuthorization, (req, res) => {
+router.get('/verify', tokenVerification, (req, res) => {
   try {
     return res.json({
       status: 200,
       message: `Valid Token`
     })
   } catch(err) {
-    console.log(`# Error on /auth/refresh route`)
+    console.log(`# Error on /auth/verify route`)
     console.error(err.message)
     return res.json({
       status: 500,
