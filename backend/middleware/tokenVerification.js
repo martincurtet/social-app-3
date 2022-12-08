@@ -15,7 +15,7 @@ module.exports = async (req, res, next) => {
       })
     }
 
-    const payload = {}
+    let payload = {}
     if (refreshToken) {
       payload = jwtRefreshVerification(refreshToken)
     } else if (accessToken) {
